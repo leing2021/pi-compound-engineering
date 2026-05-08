@@ -5,10 +5,13 @@ dist
 coverage/
 .context/
 graphify-out/
+bun.lock
 
 # Agent session handoffs (contains runtime context, not for public)
 .agent/handoffs/
 
 # docs/ is local/runtime-heavy process artifacts, not for public
 docs/
+# exception: token cost evaluation remains tracked
+!docs/token-cost-evaluation.md
 .gitnexus

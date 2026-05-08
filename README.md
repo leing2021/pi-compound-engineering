@@ -89,7 +89,7 @@ New conversation overhead: **~2,600 tokens** (1.3% of 200K context).
 
 Progressive loading: only needed skills loaded on-demand.
 
-Full evaluation → [`docs/token-cost-evaluation.md`](docs/token-cost-evaluation.md)
+Full evaluation → see Token Cost section above.
 
 ---
 
