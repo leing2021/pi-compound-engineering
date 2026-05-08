@@ -8,7 +8,7 @@ graphify-out/
 bun.lock
 
 # docs/ is local/runtime-heavy process artifacts, not for public
-exclude: docs/
+docs/
 # exception: token cost evaluation remains tracked
 !docs/token-cost-evaluation.md
 !docs/assets/super-pi.png
