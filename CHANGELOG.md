@@ -1,5 +1,16 @@
 # Changelog
 
+### 0.23.5 — Agent-skills micro-patterns: embedded behavioral gates, skill routing, repo hygiene
+- **Skill descriptions** — all 8 skills now include "Use when" trigger conditions for accurate automatic skill routing.
+- **Source-driven gate** — embedded in 3 locations: `rules/common/development-workflow.md` (rule) + `02-plan` workflow step + `03-work` workflow step. When implementation depends on a framework/library API or version-specific behavior, verify against official docs before implementing.
+- **Stop-the-line rule (Hard gate)** — embedded in `03-work` Hard gates section. On unexpected failure: STOP → PRESERVE evidence → DIAGNOSE root cause → FIX → GUARD with regression test → RESUME.
+- **Anti-rationalization** — when a gate fails or evidence is missing: do not rationalize, downgrade, or explain away the failure. Stop and report with evidence.
+- **Review five-axis baseline** — added to `04-review` reviewer-selection: all reviewers evaluate across correctness, readability, architecture, security, performance.
+- **Typo fix** — `performan04-reviewer` → `performance-reviewer`.
+- **Repo hygiene** — `docs/` no longer tracked; `bun.lock` untracked.
+- Approach B: all changes are edits to existing files, no new skills/tools/commands. ~410 tokens added.
+- 209 tests passing, 0 regressions.
+
 ### 0.23.4 — Memory Optimization Phase 2: activeRules, context-first skills, handoff lifecycle
 - Added `activeRules?: string[]` field to `context_handoff` for preserving 1-5 continuation-critical rules across sessions.
 - `activeRules` persisted in state, returned by load/latest/status, rendered in default handoff template.

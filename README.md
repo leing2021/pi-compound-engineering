@@ -1,11 +1,55 @@
 # Super Pi
 
-**Turn your AI coding agent from "a tool that writes code" into "a reliable engineer."**
+[简体中文](README.zh-CN.md)
 
-Install it, tell Pi what you want to build, then keep saying "continue" — it walks through the full loop: **think → plan → build → review → compound learnings.**
+**Turn your AI coding agent into a reliable engineer.**
+
+Install, describe what you want to build, then keep saying "continue." Super Pi drives the full loop: **think → plan → build → review → compound learnings.**
 
 ```bash
 pi install npm:@leing2021/super-pi
+```
+
+---
+
+## Highlights
+
+- **Five-step loop** — brainstorm → plan → work → review → learn, with automatic skill routing
+- **Checkpoint resume** — interrupted? Resume from the exact unit you left off
+- **TDD enforcement** — every unit follows RED → GREEN → REFACTOR with hard gates
+- **Parallel execution** — independent units run concurrently via `ce_parallel_subagent`
+- **Evidence-first review** — auto-assigned reviewers across five axes, autofix loop
+- **Knowledge compounding** — solved problems become searchable solution artifacts
+- **Token-efficient** — ~2,600 tokens new-conversation overhead; progressive loading
+
+---
+
+## Quickstart
+
+```bash
+pi install npm:@leing2021/super-pi
+```
+
+Then in Pi:
+
+```
+You: I want to build a CLI tool that helps indie devs find early users
+
+→ 01-brainstorm: structured discovery → requirements artifact
+→ 02-plan: TDD-gated implementation units → plan artifact
+→ 03-work: parallel execution, checkpoint resume
+→ 04-review: five-axis findings, autofix loop
+→ 05-learn: knowledge compounding
+
+You: continue
+→ Next skill recommended via /skill:06-next
+```
+
+**Resume after interruption:**
+
+```
+You: /skill:03-work docs/plans/plan.md
+→ Loads checkpoint, skips completed units, resumes from breakpoint
 ```
 
 ---
@@ -14,19 +58,19 @@ pi install npm:@leing2021/super-pi
 
 ```
 01-brainstorm → 02-plan → 03-work → 04-review → 05-learn
-    think          plan      build      review      learn
+    think         plan      build      review      learn
 ```
 
-| Skill | Does | Core Tool |
-|-------|------|-----------|
-| **01-brainstorm** | YC-style interrogation, three modes (Startup/Builder/CE) | `brainstorm_dialog` |
-| **02-plan** | RED→GREEN→REFACTOR, incremental updates, optional CEO Review | `plan_diff` |
-| **03-work** | Parallel execution, checkpoint resume, strict TDD | `ce_subagent`, `ce_parallel_subagent` |
-| **04-review** | Auto-assigned reviewers, structured findings, browser QA | `review_router` |
-| **05-learn** | Pattern extraction → searchable knowledge cards | `pattern_extractor` |
-| **06-next** | Next-step recommendation + full status report | `workflow_state` |
+| Skill | What it does | Core tool |
+|-------|-------------|-----------|
+| **01-brainstorm** | Structured multi-round discovery | `brainstorm_dialog` |
+| **02-plan** | TDD-gated implementation units, optional CEO Review | `plan_diff` |
+| **03-work** | Parallel execution, checkpoint resume, strict TDD, stop-the-line | `ce_subagent`, `ce_parallel_subagent` |
+| **04-review** | Auto-assigned reviewers, five-axis findings, autofix loop | `review_router` |
+| **05-learn** | Pattern extraction → searchable solution artifacts | `pattern_extractor` |
+| **06-next** | Next-step recommendation + workflow status | `workflow_state` |
 | **07-worktree** | Isolated git worktree development | `worktree_manager` |
-| **08-help** | Phase 1 skill explainer and usage guide | — |
+| **08-help** | Phase 1 skill explainer | — |
 
 ### Model & Thinking Routing
 
@@ -50,30 +94,32 @@ Model and thinking level switch automatically — no manual `/model` needed.
 
 ### pi-subagents Compatibility
 
-CE skill tools use a dedicated namespace (`ce_subagent`, `ce_parallel_subagent`) to avoid conflicts with third-party extensions like [pi-subagents](https://www.npmjs.com/package/pi-subagents). Both can coexist without configuration.
+CE tools use a dedicated namespace (`ce_subagent`, `ce_parallel_subagent`) to avoid conflicts with [pi-subagents](https://www.npmjs.com/package/pi-subagents). Both coexist without configuration.
 
 ---
 
-## Quick Start
+## Behavioral Gates
 
-```
-You: I want to build a tool that helps indie devs find users
+### Stop-the-line (Hard gate)
 
-→ 01-brainstorm: YC-style interrogation → docs/brainstorms/requirements.md
-→ 02-plan: RED→GREEN→REFACTOR units → docs/plans/plan.md
-→ 03-work: parallel execution, checkpoint resume
-→ 04-review: structured findings, optional browser QA
-→ 05-learn: knowledge compounding
+When an unexpected failure occurs during `03-work`:
 
-You: continue
-→ Next skill recommended automatically via /skill:06-next
-```
+1. **STOP** adding features
+2. **PRESERVE** evidence
+3. **DIAGNOSE** root cause
+4. **FIX** the root cause
+5. **GUARD** with a regression test
+6. **RESUME** only after verification passes
 
-**After interruption:**
-```
-You: /skill:03-work docs/plans/plan.md
-→ Auto-loads checkpoint, skips completed units, resumes from breakpoint
-```
+Anti-rationalization: do not rationalize, downgrade, or explain away failures. Stop and report with evidence.
+
+### Source-driven verification
+
+When implementation depends on a framework/library API, version-specific behavior, or a recommended pattern: verify against official documentation before implementing. Pure logic, renaming, or in-project pattern reuse does not require external citation.
+
+### Review five axes
+
+All reviewers evaluate changes across: **correctness, readability, architecture, security, performance.**
 
 ---
 
@@ -84,12 +130,10 @@ New conversation overhead: **~2,600 tokens** (1.3% of 200K context).
 | Component | Tokens |
 |-----------|--------|
 | 8 skill registrations | ~490 |
-| System prompt (skills) | ~1,400 |
+| System prompt | ~1,400 |
 | Skill inlining (per invocation) | ~500-800 |
 
 Progressive loading: only needed skills loaded on-demand.
-
-Full evaluation → see Token Cost section above.
 
 ---
 
@@ -100,26 +144,38 @@ your-project/
 ├── docs/
 │   ├── brainstorms/      # Requirements
 │   ├── plans/             # Execution plans
-│   └── solutions/          # Knowledge cards
+│   └── solutions/         # Knowledge cards
 └── .context/
     └── compound-engineering/
         ├── checkpoints/   # Breakpoint files
-        ├── dialogs/       # Dialog state
+        ├── handoffs/      # Cross-stage context
         └── history/       # Execution history
 ```
 
-**Commit everything to git** — these files are the project's traceable memory.
+Commit everything to git — these files are the project's traceable memory.
 
 ---
 
 ## Architecture
 
-- **8 skills** with dedicated tools
-- **14 tools** + 2 helpers
-- **~2800 lines** TypeScript, **175 tests**
-- **Progressive rule loading** — only what each task needs
+| Component | Count |
+|-----------|------:|
+| Skills | 8 |
+| Tools | 19 |
+| Rules | 79 |
+| TypeScript lines | ~4,400 |
+| Tests | 209 (786 assertions) |
 
-Rules in `rules/` (11 common + language-specific). Project-level overrides take priority.
+Rules in `rules/` cover 11 common topics + language-specific sets (TypeScript, Rust, Go, Python, Java, Kotlin, C++, C#, Dart, Swift, Perl, PHP). Project-level overrides take priority.
+
+---
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `bun test` | Run all tests |
+| `npm publish --dry-run` | Preview package contents |
 
 ---
 
@@ -127,14 +183,8 @@ Rules in `rules/` (11 common + language-specific). Project-level overrides take 
 
 See [CHANGELOG.md](./CHANGELOG.md) for full version history.
 
-## Repository
+## Links
 
-- **GitHub**: https://github.com/leing2021/super-pi
 - **npm**: https://www.npmjs.com/package/@leing2021/super-pi
-
-## Development
-
-```bash
-bun test
-npm publish --dry-run
-```
+- **GitHub**: https://github.com/leing2021/super-pi
+- **License**: MIT

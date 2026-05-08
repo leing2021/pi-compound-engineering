@@ -1,5 +1,16 @@
 # 更新日志
 
+### 0.23.5 — Agent-skills 微模式吸收：嵌入式行为门禁、技能路由、仓库整理
+- **Skill 描述强化** — 8 个技能的 frontmatter description 均加入 "Use when" 触发条件，提升自动技能路由准确性。
+- **Source-driven 门禁** — 嵌入 3 处：`rules/common/development-workflow.md`（规则）+ `02-plan` workflow step + `03-work` workflow step。当实现依赖框架/库 API 或版本特定行为时，先查官方文档再实现。
+- **Stop-the-line 规则（Hard gate）** — 嵌入 `03-work` Hard gates。遇到意外失败：STOP → 保留证据 → 诊断根因 → 修复 → 加回归测试 → 恢复。
+- **Anti-rationalization** — 当 gate 失败或证据缺失时：不要合理化、降级或解释失败。停下来，带着证据报告阻塞点。
+- **Review 五轴基准** — 加入 `04-review` reviewer-selection：所有 reviewer 按 correctness、readability、architecture、security、performance 五轴评估。
+- **Typo 修复** — `performan04-reviewer` → `performance-reviewer`。
+- **仓库整理** — `docs/` 不再追踪；`bun.lock` 不再追踪。
+- 采用 Approach B：所有改动为现有文件编辑，不新增技能/工具/命令。新增约 410 tokens。
+- 209 个测试通过，0 回归。
+
 ### 0.23.4 — 记忆优化 Phase 2：activeRules、context-first 技能、handoff 生命周期
 - `context_handoff` 新增 `activeRules?: string[]` 字段，用于跨 session 保存 1-5 条续接关键规则。
 - `activeRules` 持久化到 state，通过 load/latest/status 返回，在默认 handoff 模板中渲染。
