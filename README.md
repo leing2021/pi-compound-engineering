@@ -2,7 +2,7 @@
 
 ![Super Pi Workflow](docs/assets/super-pi.png)
 
-[中文](README-CN.md)  | [English](README.md) 
+[中文](README_CN.md) | [English](README.md) 
 
 
 
