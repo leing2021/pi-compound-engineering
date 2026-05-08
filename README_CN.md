@@ -28,6 +28,10 @@ pi install npm:@leing2021/super-pi
 | **07-worktree** | 隔离 git worktree 开发 | `worktree_manager` |
 | **08-help** | Phase 1 skill 说明与使用指南 | — |
 
+### Subagent 工具命名空间
+
+Super Pi 内置 CE 专用工具 `ce_subagent` 和 `ce_parallel_subagent`。它们刻意使用命名空间前缀，因此可以与兼容的第三方 `pi-subagents` 扩展共存，不会发生工具名冲突。
+
 ### 模型与思考深度路由
 
 在 `.pi/settings.json` 中配置:

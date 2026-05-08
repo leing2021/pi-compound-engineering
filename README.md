@@ -72,6 +72,10 @@ You: /skill:03-work docs/plans/plan.md
 | **07-worktree** | Isolated git worktree development | `worktree_manager` |
 | **08-help** | Phase 1 skill explainer | — |
 
+### Subagent tool namespace
+
+Super Pi ships CE-specific tools named `ce_subagent` and `ce_parallel_subagent`. They are intentionally namespaced so they can coexist with the compatible third-party `pi-subagents` extension without tool-name collisions.
+
 ### Model & Thinking Routing
 
 Configure in `.pi/settings.json`:
