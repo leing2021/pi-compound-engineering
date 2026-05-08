@@ -48,9 +48,21 @@ pi install npm:@leing2021/super-pi
 
 模型和思考深度自动切换——无需手动 `/model`。
 
-### pi-subagents 兼容性
+## 设计哲学与致谢
 
-CE skill 工具使用独立命名空间（`ce_subagent`、`ce_parallel_subagent`），避免与第三方扩展如 [pi-subagents](https://www.npmjs.com/package/pi-subagents) 冲突。两者可共存，无需配置。
+**80% 规划和审查，20% 执行。**
+
+目标不是让 AI 更快地写代码，而是让 AI 写之前先想清楚、写之后认真审查，并把解决过的问题沉淀下来。
+
+Super Pi 不是 fork，也不是 wrapper。它从下面这些项目中提取有价值的方法，并用 Pi 原生的 skills、tools、artifacts、checkpoints 和 handoffs 重新实现。
+
+| 项目 | Super Pi 借鉴的核心内容 |
+|------|--------------------------|
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | “Use when” 技能触发条件、source-driven verification、stop-the-line hard gate、anti-rationalization、五轴 review baseline。仅作为嵌入式微模式吸收，不新增 skills/tools/commands/agents。 |
+| [everything-claude-code](https://github.com/affaan-m/everything-claude-code) | 并行 subagent 编排、checkpoint 断点续传、持续学习循环、token-conscious agent workflow 设计。 |
+| [superpowers](https://github.com/obra/superpowers) | 严格 TDD gates、设计检查清单、review discipline，以及“agent 需要硬门禁而不是温和建议”的理念。 |
+| [compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) | think → plan → build → review → learn 五步循环，以及 knowledge compounding 的骨架。 |
+| [gstack](https://github.com/garrytan/gstack) | YC 式 forcing questions、CEO Review 认知框架、Browser QA 模式、failure maps、evidence-first validation。 |
 
 ---
 

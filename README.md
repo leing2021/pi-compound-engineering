@@ -92,9 +92,21 @@ Configure in `.pi/settings.json`:
 
 Model and thinking level switch automatically — no manual `/model` needed.
 
-### pi-subagents Compatibility
+## Design Philosophy & Acknowledgements
 
-CE tools use a dedicated namespace (`ce_subagent`, `ce_parallel_subagent`) to avoid conflicts with [pi-subagents](https://www.npmjs.com/package/pi-subagents). Both coexist without configuration.
+**80% planning and review, 20% execution.**
+
+The goal is not to make AI write code faster. The goal is to make AI think before writing, review after writing, and compound what it learns.
+
+Super Pi is not a fork or wrapper. It extracts useful methods from the projects below and rebuilds them with Pi-native skills, tools, artifacts, checkpoints, and handoffs.
+
+| Project | What Super Pi adopted |
+|---------|------------------------|
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | "Use when" skill trigger conditions, source-driven verification, stop-the-line hard gate, anti-rationalization, and the five-axis review baseline. Adopted as embedded micro-patterns only — no new skills, tools, commands, or agents. |
+| [everything-claude-code](https://github.com/affaan-m/everything-claude-code) | Parallel subagent orchestration, checkpoint resume, continuous learning loops, and token-conscious agent workflow design. |
+| [superpowers](https://github.com/obra/superpowers) | Strict TDD gates, design checklists, review discipline, and the idea that agents need hard gates instead of gentle suggestions. |
+| [compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) | The five-step think → plan → build → review → learn loop and the knowledge-compounding backbone. |
+| [gstack](https://github.com/garrytan/gstack) | YC-style forcing questions, CEO Review cognitive frameworks, browser QA patterns, failure maps, and evidence-first validation. |
 
 ---
 
