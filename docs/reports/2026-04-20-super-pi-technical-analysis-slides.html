@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Pi 技术分析</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #0f1530;
+      --text: #eef2ff;
+      --muted: #a8b1d1;
+      --accent: #7c9cff;
+      --accent-2: #55d6be;
+      --warn: #ffb86b;
+      --danger: #ff7b9c;
+      --border: rgba(255,255,255,.08);
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: radial-gradient(circle at top, #17214a 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+    body { display: flex; flex-direction: column; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,12,28,.45);
+      backdrop-filter: blur(12px);
+      position: relative;
+      z-index: 5;
+    }
+    .title { font-size: 14px; color: var(--muted); }
+    .kbd { border: 1px solid var(--border); background: rgba(255,255,255,.05); padding: 2px 8px; border-radius: 8px; font-size: 12px; }
+    .deck {
+      flex: 1;
+      display: flex;
+      transition: transform .35s ease;
+      width: 100%;
+      height: calc(100vh - 56px);
+    }
+    .slide {
+      min-width: 100vw;
+      height: 100%;
+      padding: 42px 56px 56px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 22px;
+    }
+    h1,h2,h3,p,ul { margin: 0; }
+    h1 { font-size: 54px; line-height: 1.05; letter-spacing: -0.03em; }
+    h2 { font-size: 34px; letter-spacing: -0.02em; }
+    h3 { font-size: 20px; color: var(--accent-2); }
+    p, li { font-size: 18px; line-height: 1.5; color: var(--text); }
+    .muted { color: var(--muted); }
+    .small { font-size: 14px; color: var(--muted); }
+    .grid { display: grid; gap: 18px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr .9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(124,156,255,.14);
+      color: #cdd8ff;
+      border: 1px solid rgba(124,156,255,.28);
+      font-size: 13px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .big-number { font-size: 50px; font-weight: 800; letter-spacing: -0.03em; color: var(--accent-2); }
+    .metric { display: flex; flex-direction: column; gap: 6px; }
+    ul { padding-left: 20px; }
+    li + li { margin-top: 8px; }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #d7e0ff;
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+      overflow: hidden;
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      vertical-align: top;
+    }
+    th { color: #cad5ff; background: rgba(255,255,255,.04); }
+    tr:last-child td { border-bottom: none; }
+    .tag { color: var(--warn); font-weight: 700; }
+    .ok { color: var(--accent-2); }
+    .risk { color: var(--danger); }
+    .progress {
+      position: fixed; left: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); width: 0%; z-index: 10;
+      transition: width .25s ease;
+    }
+    .two-col-list { columns: 2; column-gap: 28px; }
+    .two-col-list li { break-inside: avoid; }
+    @media (max-width: 1100px) {
+      .slide { padding: 28px; }
+      .hero, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      h1 { font-size: 38px; }
+      h2 { font-size: 28px; }
+      p, li { font-size: 16px; }
+      .two-col-list { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">Super Pi 深入技术分析 · 单文件 HTML 幻灯片</div>
+    <div>
+      <span class="kbd">←/→</span>
+      <span class="kbd">Space</span>
+      <span class="kbd">Home/End</span>
+    </div>
+  </div>
+
+  <div class="deck" id="deck">
+    <section class="slide">
+      <div>
+        <div class="pill">Repository Analysis</div>
+        <div class="pill">Pi Package</div>
+        <div class="pill">Compound Engineering</div>
+      </div>
+      <div class="hero">
+        <div class="card">
+          <h1>Super Pi：把 AI coding agent 包装成“工程流程系统”</h1>
+          <p class="muted" style="margin-top:16px;font-size:22px;max-width:900px;">
+            这不是一个传统应用仓库，而是一个 <b>Pi 原生工作流包</b>：
+            用 <b>9 个 skills + 13 个 tools + 文档驱动策略</b>，将需求澄清、计划、执行、审查、经验沉淀串成可复用的工程闭环。
+          </p>
+          <div style="margin-top:20px;">
+            <span class="pill">npm: @leing2021/super-pi</span>
+            <span class="pill">版本: 0.16.0</span>
+            <span class="pill">运行时: Bun + TypeScript</span>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card metric"><div class="big-number">9</div><div>Skills</div><div class="small">01-brainstorm → 09-help</div></div>
+          <div class="card metric"><div class="big-number">13</div><div>Extension Tools</div><div class="small">workflow_state / task_splitter / session_checkpoint 等</div></div>
+          <div class="card metric"><div class="big-number">142</div><div>测试通过</div><div class="small">bun test 实测全绿</div></div>
+        </div>
+      </div>
+      <div class="footer"><span>结论：本项目本质是“工程编排层”，不是“业务应用层”。</span><span>1 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>1. 仓库结构：轻代码 + 重行为约束</h2>
+        <p class="muted">代码量不大，但系统性很强。核心资产由 TypeScript 扩展、Markdown 技能规范、测试与 CI 共同组成。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>目录分层</h3>
+          <ul>
+            <li><b>extensions/ce-core/</b>：核心扩展实现，注册工具、hook 与运行时行为。</li>
+            <li><b>skills/</b>：9 个 Phase 1 workflow skills，每个 skill 由 <code>SKILL.md</code> + references/assets 组成。</li>
+            <li><b>tests/</b>：对工具行为、导出、技能契约、包结构进行系统验证。</li>
+            <li><b>docs/</b>：仓库自己生成并保存的 brainstorm / plan / solution / report artifacts。</li>
+            <li><b>.context/compound-engineering/</b>：运行时状态，如 checkpoints 与 dialogs。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>实测规模</h3>
+          <table>
+            <tr><th>维度</th><th>结果</th></tr>
+            <tr><td>总代码行数</td><td>约 <b>8119</b> 行（git ls-files）</td></tr>
+            <tr><td>TypeScript</td><td><b>5475</b> 行 / 24 文件</td></tr>
+            <tr><td>Markdown</td><td><b>4758</b> 行 / 64 文件</td></tr>
+            <tr><td>测试文件</td><td>5 个</td></tr>
+            <tr><td>工作流 CI</td><td>test.yml + publish.yml</td></tr>
+          </table>
+          <p class="small" style="margin-top:12px;">这说明项目采用的是“少量可执行代码 + 大量策略文档”的设计风格。</p>
+        </div>
+      </div>
+      <div class="footer"><span>结构上偏“产品化的 agent package”，而不是 SDK demo。</span><span>2 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>2. 产品与架构定位</h2>
+        <p class="muted">Super Pi 解决的不是“模型不会写代码”，而是“AI 缺工程纪律”。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>它在抽象什么？</h3>
+          <ul>
+            <li>把 <b>一次性 prompt 交互</b> 抽象成 <b>可追踪工作流</b>。</li>
+            <li>把“直接写代码”改造成 <b>先澄清 → 再计划 → 再执行 → 再审查 → 再沉淀</b>。</li>
+            <li>把 agent 的状态从上下文记忆转移到 <b>repo 内 artifacts + runtime state</b>。</li>
+            <li>把经验复用从“模型隐性记忆”转移到 <b>docs/solutions 显性知识库</b>。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>关键设计思想</h3>
+          <ul>
+            <li><span class="tag">文档即状态</span>：requirements / plan / solutions 都是显式工件。</li>
+            <li><span class="tag">工具即能力</span>：每个高级流程都落到可验证工具上。</li>
+            <li><span class="tag">Skill 即策略</span>：Markdown 不是注释，而是行为规约层。</li>
+            <li><span class="tag">测试即契约</span>：不仅测代码，还测技能目录、文案约束与导出面。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <h3>一句话判断</h3>
+        <p>Super Pi 不是“给 Pi 增加几个工具”，而是在 Pi 上实现一个 <b>面向长期协作的 Compound Engineering 操作系统</b>。</p>
+      </div>
+      <div class="footer"><span>项目价值来自流程设计，而不是某个单点算法。</span><span>3 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>3. 核心运行模型：9 Skills × 13 Tools</h2>
+        <p class="muted">整体是“双层架构”：上层 skill 编排工作流，下层 tool 提供结构化能力。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Workflow Skills</h3>
+          <ul class="two-col-list">
+            <li><b>01-brainstorm</b>：需求挖掘，多轮对话，三种模式。</li>
+            <li><b>02-plan</b>：把需求转成 implementation units，强制 TDD。</li>
+            <li><b>03-work</b>：执行计划、并行拆分、断点续传。</li>
+            <li><b>04-review</b>：结构化审查与可选 QA。</li>
+            <li><b>05-compound</b>：沉淀 solution artifacts。</li>
+            <li><b>06-next</b>：推荐下一步 skill。</li>
+            <li><b>07-worktree</b>：隔离工作树生命周期。</li>
+            <li><b>08-status</b>：检查仓库当前 workflow 状态。</li>
+            <li><b>09-help</b>：解释如何使用整套包。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Core Tools</h3>
+          <ul class="two-col-list">
+            <li>artifact_helper</li>
+            <li>ask_user_question</li>
+            <li>subagent</li>
+            <li>workflow_state</li>
+            <li>worktree_manager</li>
+            <li>review_router</li>
+            <li>parallel_subagent</li>
+            <li>session_checkpoint</li>
+            <li>task_splitter</li>
+            <li>brainstorm_dialog</li>
+            <li>plan_diff</li>
+            <li>session_history</li>
+            <li>pattern_extractor</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card code">01-brainstorm → 02-plan → 03-work → 04-review → 05-compound
+      think           plan        build       review        compound</div>
+      <div class="footer"><span>它将“人类工程师的流程纪律”显式编码到了工具与提示词之间。</span><span>4 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>4. ce-core 扩展：真正的系统中枢</h2>
+        <p class="muted"><code>extensions/ce-core/index.ts</code> 是总装配器：参数 schema、工具注册、tool_result hook、session_before_compact hook 都在这里汇合。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>运行时职责</h3>
+          <ul>
+            <li>为每个工具声明 TypeBox 参数 schema。</li>
+            <li>将纯逻辑工具包装成 Pi 可注册工具。</li>
+            <li>桥接 Pi 能力：UI、子进程执行、git 命令、session hooks。</li>
+            <li>导出公共 API，形成可测试、可复用的扩展边界。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>最有价值的两个 hook</h3>
+          <ul>
+            <li><b>tool_result / bash</b>：自动过滤噪声型 shell 输出，减少上下文浪费。</li>
+            <li><b>tool_result / read</b>：自动压缩大文件读取结果，保留结构与关键信息。</li>
+            <li><b>session_before_compact</b>：注入压缩提示，保留路径、错误、改动原因等关键状态。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <h3>架构评价</h3>
+        <p>这里采用了很典型的 <b>functional core + integration shell</b> 模式：工具逻辑大多是纯函数/轻 IO，Pi 相关副作用集中在扩展入口。这极大提高了可测性。</p>
+      </div>
+      <div class="footer"><span>这是仓库工程质量最高的部分之一。</span><span>5 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>5. 关键工具深剖</h2>
+        <p class="muted">这些工具不是“锦上添花”，而是整个工程闭环成立的关键机制。</p>
+      </div>
+      <div class="grid grid-3">
+        <div class="card">
+          <h3>workflow_state</h3>
+          <p>扫描 <code>docs/</code> 与 <code>.context/</code>，返回 brainstorm / plans / solutions / runs 的数量与最新工件。</p>
+          <p class="small">价值：让“下一步推荐”基于仓库事实，而不是模型猜测。</p>
+        </div>
+        <div class="card">
+          <h3>task_splitter</h3>
+          <p>以文件触达为依赖图，使用 <b>Union-Find</b> 合并共享文件的 units，输出可并行/需串行分组。</p>
+          <p class="small">价值：把并发执行建立在静态冲突分析之上。</p>
+        </div>
+        <div class="card">
+          <h3>session_checkpoint</h3>
+          <p>将 plan 执行状态持久化到 JSON，支持 save/load/list/fail/retry。</p>
+          <p class="small">价值：让 AI 工作流具备“恢复能力”。</p>
+        </div>
+        <div class="card">
+          <h3>plan_diff</h3>
+          <p>比较旧 plan 与新 requirements，识别 added / removed / modified / unchanged。</p>
+          <p class="small">价值：避免需求变化时整份计划重写。</p>
+        </div>
+        <div class="card">
+          <h3>review_router</h3>
+          <p>根据 diff 元数据，把 reviewer personas 路由到 security / performance / integration / thoroughness 等。</p>
+          <p class="small">价值：审查策略开始“上下文相关”。</p>
+        </div>
+        <div class="card">
+          <h3>pattern_extractor</h3>
+          <p>对 artifact 内容做关键词提取与分类，支持 solution memory 的结构化沉淀。</p>
+          <p class="small">价值：把“经验”从聊天记录变为检索对象。</p>
+        </div>
+      </div>
+      <div class="footer"><span>这些能力共同构成了一个“工程状态机”。</span><span>6 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>6. 文档驱动编排：Markdown 不是说明书，而是行为控制面</h2>
+        <p class="muted">skills 下的大量 Markdown 文件，承担了接近“可执行规范”的职责。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>为什么这很重要？</h3>
+          <ul>
+            <li>把复杂 agent 行为拆到多个 references 文件，降低单一 prompt 失控风险。</li>
+            <li>不同 skill 通过 handoff.md 形成显式接力。</li>
+            <li>plan-template、implementation-unit-template、findings-schema 等文件，让输出具有稳定结构。</li>
+            <li>测试还会检查这些文档是否包含必要短语，形成“文档契约”。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>典型模式</h3>
+          <ul>
+            <li><b>01-brainstorm</b>：要求 one-question-at-a-time、多轮 refine、approval gate。</li>
+            <li><b>02-plan</b>：硬性 RED / GREEN / REFACTOR gate。</li>
+            <li><b>04-review</b>：要求 structured findings、YAGNI、autofix 与 solution retrieval。</li>
+            <li><b>05-compound</b>：要求 YAML frontmatter、overlap check、category map。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <h3>分析结论</h3>
+        <p>本项目采用的是一种 <b>PromptOps / Policy-as-Markdown</b> 设计：用版本化文档来约束 agent，而不是把全部规则硬编码进 TypeScript。</p>
+      </div>
+      <div class="footer"><span>这让系统更易演进，但也带来文档一致性维护成本。</span><span>7 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>7. 测试与发布：工程成熟度评估</h2>
+        <p class="muted">虽然项目不大，但测试密度很高，而且测试对象不仅是函数，还包括包结构与技能契约。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>测试覆盖面</h3>
+          <ul>
+            <li><b>工具行为测试</b>：artifact_helper、subagent、worktree_manager、review_router、session_history 等。</li>
+            <li><b>过滤器测试</b>：bash-output-filter 与 read-output-filter，覆盖大量真实输出场景。</li>
+            <li><b>技能契约测试</b>：检查 SKILL.md / references 是否存在关键约束。</li>
+            <li><b>包结构测试</b>：验证 package.json、README、GitHub Actions、Pi manifest。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>实测结果</h3>
+          <div class="big-number ok">142 / 142</div>
+          <p>全部通过，运行时间约 <b>217ms</b>。</p>
+          <p class="small">CI 使用 Bun 1.3.12；发布流程要求 bun test 通过后执行 <code>npm publish --access public</code>。</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>成熟度判断</h3>
+        <p>这是一个 <b>可发布、可回归、可持续迭代</b> 的 package 项目，而不是实验性仓库。尤其值得注意的是：它对“行为规范是否存在”也做测试，这非常适合 agent 产品。</p>
+      </div>
+      <div class="footer"><span>工程完整度高于很多同规模 AI 工具仓库。</span><span>8 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>8. 优势、风险与改进建议</h2>
+        <p class="muted">这个项目的优点非常明确，但也有几个长期演进风险。</p>
+      </div>
+      <div class="grid grid-3">
+        <div class="card">
+          <h3 class="ok">核心优势</h3>
+          <ul>
+            <li>强工作流心智模型，定位清晰。</li>
+            <li>工具设计单一职责、易测试。</li>
+            <li>文档化策略使系统具备高可解释性。</li>
+            <li>artifact/state 设计适合长期项目协作。</li>
+            <li>上下文优化器切中 LLM agent 的真实痛点。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="risk">主要风险</h3>
+          <ul>
+            <li>Markdown 规则越来越多时，skill 行为可能出现漂移。</li>
+            <li>部分工具当前实现仍偏“启发式”，如 reviewer 路由与 pattern 提取较浅。</li>
+            <li>workflow_state 目前按文件名排序近似“最新”，对复杂时间语义不够稳健。</li>
+            <li>worktree_manager 对分支策略和异常路径处理还比较轻。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>建议优先级</h3>
+          <ul>
+            <li><b>P1</b>：为 skill 文档建立更结构化 schema / lint。</li>
+            <li><b>P1</b>：增强 tool 与 skill 的端到端集成测试。</li>
+            <li><b>P2</b>：引入更强的 artifact metadata，而非仅靠路径命名。</li>
+            <li><b>P2</b>：提升 pattern_extractor 与 review_router 的语义深度。</li>
+            <li><b>P3</b>：增加可视化 workflow dashboard。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer"><span>当前阶段更像“高质量 v1 平台内核”，下一步应加强规模化治理。</span><span>9 / 10</span></div>
+    </section>
+
+    <section class="slide">
+      <div>
+        <h2>9. 最终判断</h2>
+        <p class="muted">如果把 AI coding agent 分成“模型层、工具层、流程层、记忆层”，Super Pi 的主要创新在后 3 层。</p>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>一句话总评</h3>
+          <p style="font-size:26px;line-height:1.4;">
+            <b>Super Pi 是一个把工程管理原则产品化到 Pi 生态里的 workflow package，
+            其竞争力来自流程编排、状态持久化、上下文优化与知识复用，而非单一工具炫技。</b>
+          </p>
+        </div>
+        <div class="card">
+          <h3>技术评级</h3>
+          <table>
+            <tr><th>维度</th><th>评价</th></tr>
+            <tr><td>架构清晰度</td><td>优秀</td></tr>
+            <tr><td>测试完整度</td><td>优秀</td></tr>
+            <tr><td>可扩展性</td><td>良好</td></tr>
+            <tr><td>运行时鲁棒性</td><td>良好</td></tr>
+            <tr><td>策略治理复杂度</td><td>中高</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card code">关键证据摘要：
+- package.json 暴露标准 Pi package manifest（skills + extensions）
+- extensions/ce-core/index.ts 注册 13 个工具并挂接 3 类 runtime hooks
+- tests 覆盖工具、契约、过滤器、包结构，bun test 142/142 全通过
+- docs/ 与 .context/ 中已经存在真实 artifacts，说明“自举使用”已发生
+- 最近版本 v0.16.0 聚焦 read-output-filter + compaction optimizer，方向明确：解决 agent 上下文效率</div>
+      <div class="footer"><span>HTML 文件路径：docs/reports/2026-04-20-super-pi-technical-analysis-slides.html</span><span>10 / 10</span></div>
+    </section>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <script>
+    const deck = document.getElementById('deck');
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const progress = document.getElementById('progress');
+    let index = 0;
+
+    function render() {
+      deck.style.transform = `translateX(-${index * 100}vw)`;
+      progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+      document.title = `${index + 1}/${slides.length} · Super Pi 技术分析`;
+    }
+
+    function next() { if (index < slides.length - 1) { index++; render(); } }
+    function prev() { if (index > 0) { index--; render(); } }
+    function first() { index = 0; render(); }
+    function last() { index = slides.length - 1; render(); }
+
+    window.addEventListener('keydown', (e) => {
+      if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); next(); }
+      if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prev(); }
+      if (e.key === 'Home') { e.preventDefault(); first(); }
+      if (e.key === 'End') { e.preventDefault(); last(); }
+    });
+
+    let startX = null;
+    window.addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive:true});
+    window.addEventListener('touchend', e => {
+      if (startX == null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (dx < -40) next();
+      if (dx > 40) prev();
+      startX = null;
+    }, {passive:true});
+
+    render();
+  </script>
+</body>
+</html>

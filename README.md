@@ -1,10 +1,16 @@
 # Super Pi
 
-[简体中文](README.zh-CN.md)
+![Super Pi Workflow](docs/assets/super-pi.png)
+
+[中文](README-CN.md)  | [English](README.md) 
+
+
 
 **Turn your AI coding agent into a reliable engineer.**
 
-Install, describe what you want to build, then keep saying "continue." Super Pi drives the full loop: **think → plan → build → review → compound learnings.**
+Install, describe what you want to build, then keep saying "continue." Super Pi drives the full loop:
+
+ **think → plan → build → review → compound learnings.**
 
 ```bash
 pi install npm:@leing2021/super-pi
@@ -150,6 +156,8 @@ New conversation overhead: **~2,600 tokens** (1.3% of 200K context).
 | Skill inlining (per invocation) | ~500-800 |
 
 Progressive loading: only needed skills loaded on-demand.
+
+See [docs/token-cost-evaluation.md](docs/token-cost-evaluation.md) for detailed per-skill breakdown and measurement methodology.
 
 ---
 
