@@ -12,3 +12,4 @@ docs/
 # exception: token cost evaluation remains tracked
 !docs/token-cost-evaluation.md
 !docs/assets/super-pi.png
+!docs/assets/super-pi.webp

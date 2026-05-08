@@ -1,6 +1,6 @@
 # Super Pi
 
-![Super Pi Workflow](docs/assets/super-pi.png)
+![Super Pi Workflow](docs/assets/super-pi.webp)
 
 [中文](README_CN.md) | [English](README.md) 
 
