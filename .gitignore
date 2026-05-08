@@ -6,7 +6,9 @@ coverage/
 .context/
 graphify-out/
 
-# docs/ is local/runtime-heavy; only token-cost-evaluation.md is tracked
-docs/**
-!/docs/
-!/docs/token-cost-evaluation.md
+# Agent session handoffs (contains runtime context, not for public)
+.agent/handoffs/
+
+# docs/ is local/runtime-heavy process artifacts, not for public
+docs/
+.gitnexus

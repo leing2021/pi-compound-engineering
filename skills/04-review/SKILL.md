@@ -1,6 +1,6 @@
 ---
 name: 04-review
-description: "Review code with structured findings. Optional browser QA and regression tests."
+description: "Review code changes across five axes with evidence-first findings. Use after implementation is complete and before committing."
 ---
 
 # Review

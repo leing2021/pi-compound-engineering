@@ -1,6 +1,6 @@
 ---
 name: 02-plan
-description: "Turn requirements into a plan. Optional CEO-style strategic review after."
+description: "Turn requirements into an execution-ready plan with TDD-gated implementation units. Use when a brainstorm artifact exists and is ready for planning."
 ---
 
 # Plan
@@ -43,7 +43,8 @@ Every unit follows **RED → GREEN → REFACTOR**:
 2. Read relevant brainstorm from `docs/brainstorms/`
 3. Run solution search (keywords → grep frontmatter → read top 3)
 4. Gather repository context
-5. If plan exists: use `plan_diff` `compare` → review with user → `patch`
+5. **Source-driven check:** For each unit that involves framework/library APIs, add a note: "Verify against official docs before implementing."
+6. If plan exists: use `plan_diff` `compare` → review with user → `patch`
 6. If no plan: write new plan under `docs/plans/` using `references/plan-template.md`
 7. Structure work using `references/implementation-unit-template.md`
 8. Verify every unit follows TDD gates

@@ -1,6 +1,6 @@
 ---
 name: 07-worktree
-description: Create and manage git worktrees for isolated feature development.
+description: "Create and manage git worktrees for isolated feature development. Use when starting a feature that needs branch isolation."
 ---
 
 # Worktree

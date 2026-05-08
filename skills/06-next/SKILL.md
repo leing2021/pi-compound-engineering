@@ -1,6 +1,6 @@
 ---
 name: 06-next
-description: "Inspect workflow state and recommend the single best next Compound Engineering skill. Use --verbose for a full status report."
+description: "Inspect workflow artifacts and recommend the single best next skill. Use when unsure what to run next."
 ---
 
 # Next

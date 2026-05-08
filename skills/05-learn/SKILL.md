@@ -1,6 +1,6 @@
 ---
 name: 05-learn
-description: Capture solved problems as reusable solution artifacts.
+description: "Capture solved problems as searchable solution artifacts. Use after a workflow loop completes or a non-trivial problem is solved."
 ---
 
 # Learn

@@ -1,6 +1,6 @@
 ---
 name: 01-brainstorm
-description: "Brainstorm requirements with three modes: CE discovery, Startup Diagnostic, Builder Mode."
+description: "Discover requirements through structured multi-round dialog. Use when the request is ambiguous, needs discovery, or describes a new idea/product."
 ---
 
 # Brainstorm

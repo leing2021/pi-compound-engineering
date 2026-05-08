@@ -13,6 +13,7 @@ The Feature Implementation Workflow describes the development pipeline: research
    - **Check package registries:** Search npm, PyPI, crates.io, and other registries before writing utility code. Prefer battle-tested libraries over hand-rolled solutions.
    - **Search for adaptable implementations:** Look for open-source projects that solve 80%+ of the problem and can be forked, ported, or wrapped.
    - Prefer adopting or porting a proven approach over writing net-new code when it meets the requirement.
+   - **Source-driven trigger:** When implementation depends on a framework/library API, version-specific behavior, or a recommended pattern, verify against official documentation and cite key sources in the output. Pure logic, renaming, or in-project pattern reuse does not require external citation.
 
 1. **Plan First**
    - Use **planner** agent to create implementation plan

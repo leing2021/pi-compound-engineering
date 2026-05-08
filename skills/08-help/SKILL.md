@@ -1,6 +1,6 @@
 ---
 name: 08-help
-description: Explain when to use each Compound Engineering Phase 1 skill and how they connect.
+description: "Explain Phase 1 skills and their connections. Use when learning the workflow or deciding which skill applies."
 ---
 
 # Help
