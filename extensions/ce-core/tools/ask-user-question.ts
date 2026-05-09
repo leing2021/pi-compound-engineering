@@ -32,7 +32,7 @@ export function createAskUserQuestionTool() {
           : { answer, mode: "input" }
       }
 
-      const allowCustom = input.allowCustom ?? false
+      const allowCustom = input.allowCustom ?? true
       const selectOptions = allowCustom ? [...options, CUSTOM_OPTION] : options
       const selected = await ui.select(input.question, selectOptions)
 

@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.23.7 — ask_user_question: default allowCustom to true
+- `ask_user_question` now defaults `allowCustom` to `true` when `options` are provided, automatically appending an "Other" option that lets users enter custom text.
+- Existing callers can opt out by explicitly setting `allowCustom: false`.
+- Updated tests to cover the new default behavior and the explicit opt-out path.
+
 ### 0.23.5 — Agent-skills micro-patterns: embedded behavioral gates, skill routing, repo hygiene
 - **Skill descriptions** — all 8 skills now include "Use when" trigger conditions for accurate automatic skill routing.
 - **Source-driven gate** — embedded in 3 locations: `rules/common/development-workflow.md` (rule) + `02-plan` workflow step + `03-work` workflow step. When implementation depends on a framework/library API or version-specific behavior, verify against official docs before implementing.

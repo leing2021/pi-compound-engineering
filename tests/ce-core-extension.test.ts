@@ -156,10 +156,10 @@ describe("ask_user_question", () => {
     expect(result.mode).toBe("input")
   })
 
-  test("supports fixed-options mode", async () => {
+  test("supports fixed-options mode without custom", async () => {
     const tool = createAskUserQuestionTool()
     const result = await tool.execute(
-      { question: "Choose next step", options: ["brainstorm", "plan"] },
+      { question: "Choose next step", options: ["brainstorm", "plan"], allowCustom: false },
       {
         input: async () => null,
         select: async () => "plan",
@@ -170,14 +170,10 @@ describe("ask_user_question", () => {
     expect(result.mode).toBe("select")
   })
 
-  test("supports custom answers when enabled", async () => {
+  test("defaults to allowing custom answers when options are provided", async () => {
     const tool = createAskUserQuestionTool()
     const result = await tool.execute(
-      {
-        question: "Choose next step",
-        options: ["brainstorm", "plan"],
-        allowCustom: true,
-      },
+      { question: "Choose next step", options: ["brainstorm", "plan"] },
       {
         input: async () => "compound",
         select: async () => "Other",
